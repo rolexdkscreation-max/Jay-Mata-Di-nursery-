@@ -1,0 +1,18 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Admin - JAI MATA DI</title><style>body{font-family:system-ui;padding:12px}input,select,button{padding:10px;margin:4px 0;width:100%}.card{border:1px solid #ccc;padding:10px;border-radius:10px;margin:6px 0}</style></head><body>
+<h2>Admin - JAI MATA DI</h2>
+<input id="upi" placeholder="UPI ID - jaimatadi@okhdfcbank"><button onclick="localStorage.setItem('upi',document.getElementById('upi').value);alert('UPI Saved')">Save UPI</button>
+<hr><h3>Add Product (Color Tick System)</h3>
+<input id="pname_en" placeholder="Name EN - Rose"><input id="pname_hi" placeholder="Name HI"><input id="pname_mr" placeholder="Name MR">
+<select id="cat" onchange="document.getElementById('potF').style.display=this.value!='Plant'?'block':'none'"><option>Plant</option><option>Pot</option><option>Matka</option></select>
+<div id="potF" style="display:none"><input id="inch" placeholder="Inch - 12"><input id="company" placeholder="Company - Supreme"><select id="ptype"><option>Plastic</option><option>Ceramic</option><option>Terracotta</option><option>Cement</option></select></div>
+<p>🎨 Color Tick Karo:</p><div id="colors"></div><div id="varInputs"></div>
+<button onclick="addProduct()" style="background:#2e7d32;color:#fff">Save Product</button><div id="log"></div>
+<script>
+const LIST=[{n:'red',c:'#e53935'},{n:'white',c:'#ffffff'},{n:'yellow',c:'#fdd835'},{n:'pink',c:'#f06292'},{n:'orange',c:'#fb8c00'},{n:'purple',c:'#8e24aa'},{n:'blue',c:'#1e88e5'},{n:'green',c:'#43a047'},{n:'brown',c:'#6d4c41'},{n:'black',c:'#212121'}];
+let sel={};
+function init(){let d=document.getElementById('colors');LIST.forEach(o=>{d.innerHTML+=`<label><input type="checkbox" onchange="tog('${o.n}','${o.c}',this.checked)"> ${o.n}</label> `});}
+window.tog=(n,c,ch)=>{if(ch)sel[n]=c;else delete sel[n];rend();}
+function rend(){let d=document.getElementById('varInputs');d.innerHTML='';Object.keys(sel).forEach(col=>{d.innerHTML+=`<div class="card"><b>${col}</b><input type="number" id="st_${col}" placeholder="Stock"><input type="number" id="pr_${col}" placeholder="Rate"><input id="ph_${col}" placeholder="Photo URL"></div>`});}
+window.addProduct=()=>{let variants=[];Object.keys(sel).forEach(col=>{variants.push({color:col,colorCode:sel[col],stock:parseInt(document.getElementById('st_'+col).value||0),price:parseInt(document.getElementById('pr_'+col).value||0),photo:document.getElementById('ph_'+col).value||'https://via.placeholder.com/300'})});let prod={id:Date.now(),name:{en:document.getElementById('pname_en').value,hi:document.getElementById('pname_hi').value||document.getElementById('pname_en').value,mr:document.getElementById('pname_mr').value||document.getElementById('pname_en').value},inch:document.getElementById('inch').value,company:document.getElementById('company').value,type:document.getElementById('ptype').value,category:document.getElementById('cat').value,variants:variants};let local=JSON.parse(localStorage.getItem('products')||'[]');local.push(prod);localStorage.setItem('products',JSON.stringify(local));document.getElementById('log').innerText='Saved ✅ Selling Panel me dikhega';sel={};rend();}
+init();
+</script></body></html>
