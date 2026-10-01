@@ -1,60 +1,48 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin PRO</title>
-<style>body{font-family:system-ui;padding:12px;background:#f9f9f9}input,select,button{padding:12px;margin:5px 0;width:100%;box-sizing:border-box;border-radius:8px;border:1px solid #ccc}button{font-weight:700;cursor:pointer}.card{border:1px solid #ddd;background:#fff;padding:12px;border-radius:12px;margin:8px 0}.list-img{width:60px;height:60px;object-fit:cover;border-radius:8px}</style></head><body>
-<h2>JAI MATA DI - Admin PRO</h2>
-<input id="upi" value="7050279271@kotak"><button onclick="localStorage.setItem('upi',upi.value);alert('UPI Saved')" style="background:#eee">Save UPI ID</button>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Admin PRO Auto</title>
+<style>body{font-family:system-ui;padding:12px;background:#f9f9f9}input,select,button{padding:12px;margin:5px 0;width:100%;box-sizing:border-box;border-radius:8px;border:1px solid #ccc}button{font-weight:700}.card{border:1px solid #ddd;background:#fff;padding:12px;border-radius:12px;margin:8px 0}</style></head><body>
+<h2>JAI MATA DI - Admin AUTO-FILL</h2>
+<input id="upi" value="7050279271@kotak"><button onclick="localStorage.setItem('upi',upi.value);alert('UPI Saved')" style="background:#eee">Save UPI</button>
 <hr>
 <div class="card" style="border:2px solid #2e7d32">
-<h3>➕ Naya Product Add Karo</h3>
-<input id="pname_en" placeholder="Product Name - Rose / Gulmohar">
-<div style="display:flex;gap:6px"><input id="pname_hi" placeholder="Hindi Naam"><input id="pname_mr" placeholder="Marathi Naam"></div>
-<select id="cat" onchange="potF.style.display=this.value=='Plant'?'none':'block'"><option>Plant</option><option>Pot</option><option>Matka</option></select>
-<div id="potF" style="display:none"><div style="display:flex;gap:6px"><input id="inch" placeholder="Size Inch - 12"><input id="company" placeholder="Company - Supreme"></div><select id="ptype"><option>Plastic</option><option>Ceramic</option><option>Terracotta</option><option>Cement</option></select></div>
-<p><b>🎨 Color Tick Karo (jitne color me stock hai):</b></p><div id="colors"></div>
+<h3>➕ Naya Product</h3>
+<input id="pname_en" placeholder="Name EN - Rose" oninput="autoName(this,'en')"><div style="display:flex;gap:6px"><input id="pname_hi" placeholder="Hindi Naam" oninput="autoName(this,'hi')"><input id="pname_mr" placeholder="Marathi Naam" oninput="autoName(this,'mr')"></div>
+<select id="cat"><option>Plant</option><option>Pot</option><option>Matka</option></select>
+<p><b>🎨 Color Tick Karo:</b></p><div id="colors"></div>
+<p><small>💡 Pehle color me Stock/Rate bharo, baki me automatic bhar jayega</small></p>
 <div id="varInputs"></div>
-<button onclick="addProduct()" style="background:#2e7d32;color:#fff;padding:15px;font-size:16px">✅ SAVE PRODUCT - List me Add Hoga</button>
+<button onclick="addProduct()" style="background:#2e7d32;color:#fff;padding:15px">✅ SAVE PRODUCT</button>
 <div id="log" style="color:green;font-weight:800;text-align:center;margin-top:10px"></div>
 </div>
-
-<hr>
-<h3>📦 Aapke Saved Products (Item List)</h3>
-<div id="itemList">Loading...</div>
-<button onclick="if(confirm('Sab delete?')){localStorage.removeItem('products');location.reload()}" style="background:red;color:#fff">Sab Delete Karo</button>
-
+<hr><h3>📦 Saved List</h3><div id="itemList"></div>
 <script>
 const LIST=[{n:'red',c:'#e53935'},{n:'white',c:'#fff'},{n:'yellow',c:'#fdd835'},{n:'pink',c:'#f06292'},{n:'orange',c:'#fb8c00'},{n:'purple',c:'#8e24aa'},{n:'blue',c:'#1e88e5'},{n:'brown',c:'#6d4c41'},{n:'green',c:'#43a047'},{n:'black',c:'#212121'}];
-let sel={}, photoStore={};
-
-function init(){let d=document.getElementById('colors');d.innerHTML='';LIST.forEach(o=>{d.innerHTML+=`<label style="display:flex;align-items:center;gap:8px;padding:6px;border-bottom:1px solid #eee"><input type="checkbox" onchange="tog('${o.n}','${o.c}',this.checked)"> <span style="background:${o.c};width:22px;height:22px;border-radius:50%;display:inline-block;border:1px solid #999"></span> ${o.n.toUpperCase()}</label>`}); renderList();}
+let sel={};
+function init(){let d=document.getElementById('colors');LIST.forEach(o=>{d.innerHTML+=`<label style="display:flex;gap:8px;padding:6px"><input type="checkbox" onchange="tog('${o.n}','${o.c}',this.checked)"> <span style="background:${o.c};width:22px;height:22px;border-radius:50%;display:inline-block;border:1px solid #999"></span> ${o.n}</label>`});renderList();}
 window.tog=(n,c,ch)=>{if(ch)sel[n]=c;else delete sel[n];rendVar();}
-function rendVar(){let d=document.getElementById('varInputs');d.innerHTML='';Object.keys(sel).forEach(col=>{d.innerHTML+=`<div class="card"><b>${col.toUpperCase()}</b><div style="display:flex;gap:6px"><input type="number" id="st_${col}" placeholder="Stock - 50"><input type="number" id="pr_${col}" placeholder="Rate ₹ - 120"></div><label>Photo Upload Karo: <input type="file" id="file_${col}" accept="image/*" onchange="handleFile(this,'${col}')"></label><input type="text" id="ph_${col}" placeholder="Ya Photo URL paste karo"><div id="prev_${col}"></div></div>`});}
-window.handleFile=(input,col)=>{let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=e=>{photoStore[col]=e.target.result;document.getElementById('prev_'+col).innerHTML=`<img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid green"> ✅ Photo Ready`; document.getElementById('ph_'+col).value = e.target.result;};reader.readAsDataURL(file);}
-
+function rendVar(){let d=document.getElementById('varInputs');d.innerHTML='';Object.keys(sel).forEach((col,idx)=>{d.innerHTML+=`<div class="card"><b>${col.toUpperCase()}</b><div style="display:flex;gap:6px"><input type="number" id="st_${col}" placeholder="Stock" oninput="autoFill('${col}','stock',this.value)"><input type="number" id="pr_${col}" placeholder="Rate ₹" oninput="autoFill('${col}','rate',this.value)"></div><input type="text" id="ph_${col}" placeholder="Photo URL (optional) - 1 me dalo to sab me jayega" oninput="autoFill('${col}','photo',this.value)"></div>`});}
+window.autoFill=(fromCol,type,val)=>{
+ if(!val) return;
+ let keys=Object.keys(sel);
+ if(keys[0]!==fromCol) return; // sirf pehle wale se auto-fill hoga
+ keys.slice(1).forEach(col=>{
+  if(type=='stock'){let el=document.getElementById('st_'+col); if(el &&!el.value) el.value=val;}
+  if(type=='rate'){let el=document.getElementById('pr_'+col); if(el &&!el.value) el.value=val;}
+  if(type=='photo'){let el=document.getElementById('ph_'+col); if(el &&!el.value) el.value=val;}
+ });
+}
+window.autoName=(el,lang)=>{
+ let v=el.value; if(!v) return;
+ if(lang=='en'){if(!pname_hi.value) pname_hi.value=v; if(!pname_mr.value) pname_mr.value=v;}
+ if(lang=='hi'){if(!pname_en.value) pname_en.value=v; if(!pname_mr.value) pname_mr.value=v;}
+ if(lang=='mr'){if(!pname_en.value) pname_en.value=v; if(!pname_hi.value) pname_hi.value=v;}
+}
 window.addProduct=()=>{
- let variants=[];let ok=true;
- Object.keys(sel).forEach(col=>{
-  let st=document.getElementById('st_'+col).value; let pr=document.getElementById('pr_'+col).value; let ph=document.getElementById('ph_'+col).value;
-  if(!st||!pr){ok=false;}
-  variants.push({color:col,colorCode:sel[col],stock:parseInt(st||0),price:parseInt(pr||0),photo:ph||'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400'});
- });
- if(variants.length==0)return alert('Pehle koi color tick karo');
- if(!ok)return alert('Har color me Stock aur Rate bharna jaruri hai');
- let prod={id:Date.now(),name:{en:pname_en.value||'Product',hi:pname_hi.value||pname_en.value,mr:pname_mr.value||pname_en.value},inch:inch.value,company:company.value,type:ptype.value,category:cat.value,variants:variants};
+ let variants=[]; Object.keys(sel).forEach(col=>{let st=document.getElementById('st_'+col).value;let pr=document.getElementById('pr_'+col).value;let ph=document.getElementById('ph_'+col).value; if(!st) st=document.getElementById('st_'+Object.keys(sel)[0])?.value||0; if(!pr) pr=document.getElementById('pr_'+Object.keys(sel)[0])?.value||0; if(!ph) ph=document.getElementById('ph_'+Object.keys(sel)[0])?.value||''; variants.push({color:col,colorCode:sel[col],stock:parseInt(st||0),price:parseInt(pr||0),photo:ph||'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=400'})});
+ if(variants.length==0)return alert('Color tick karo');
+ let prod={id:Date.now(),name:{en:pname_en.value||'Rose',hi:pname_hi.value||pname_en.value,mr:pname_mr.value||pname_en.value},category:cat.value,variants:variants};
  let local=JSON.parse(localStorage.getItem('products')||'[]'); local.push(prod); localStorage.setItem('products',JSON.stringify(local));
- document.getElementById('log').innerText='✅ '+prod.name.en+' Save Ho Gaya! Neeche list me aa gaya. Ab dusra add kar sakte ho.';
- // Form khali karo
- pname_en.value=''; pname_hi.value=''; pname_mr.value=''; sel={}; photoStore={}; document.getElementById('colors').querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false); document.getElementById('varInputs').innerHTML='';
- renderList();
- setTimeout(()=>log.innerText='',3000);
+ log.innerText='✅ Saved! Ab dusra add karo'; pname_en.value='';pname_hi.value='';pname_mr.value=''; sel={}; document.querySelectorAll('#colors input').forEach(c=>c.checked=false); varInputs.innerHTML=''; renderList();
 }
-
-function renderList(){
- let list=JSON.parse(localStorage.getItem('products')||'[]'); let d=document.getElementById('itemList');
- if(list.length==0){d.innerHTML='<p>Koi product nahi hai. Upar se add karo.</p>';return;}
- d.innerHTML=''; list.reverse().forEach(p=>{
-  let v=p.variants[0];
-  d.innerHTML+=`<div class="card" style="display:flex;gap:10px;align-items:center"><img src="${v.photo}" class="list-img"><div style="flex:1"><b>${p.name.en}</b> (${p.category})<br><small>${p.variants.map(v=>`${v.color}: ₹${v.price} (St:${v.stock})`).join(' | ')}</small></div><button onclick="delProd(${p.id})" style="width:auto;background:#ffebee;color:red;border:1px solid red">Delete</button></div>`;
- });
-}
-window.delProd=(id)=>{let list=JSON.parse(localStorage.getItem('products')||'[]');list=list.filter(p=>p.id!=id);localStorage.setItem('products',JSON.stringify(list));renderList();}
+function renderList(){let list=JSON.parse(localStorage.getItem('products')||'[]'); let d=itemList; if(list.length==0){d.innerHTML='Empty';return;} d.innerHTML=''; list.slice().reverse().forEach(p=>{d.innerHTML+=`<div class="card"><b>${p.name.en}</b> - ${p.variants.map(v=>`${v.color}:₹${v.price}`).join(', ')} <button onclick="let l=JSON.parse(localStorage.getItem('products'));localStorage.setItem('products',JSON.stringify(l.filter(x=>x.id!=${p.id})));renderList()" style="width:auto;background:red;color:#fff;padding:5px">Delete</button></div>`});}
 init();
 </script></body></html>
